@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Core Business Models ───────────────────────────────────────────────────
+
+model Subscription {
+  id             String   @id @default(uuid())
+  organizationId String
+  status         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId])
+  @@index([organizationId])
+  @@map("subscriptions")
+}
+
+model WidgetSettings {
+  id                 String   @id @default(uuid())
+  organizationId     String
+  greetMessage       String
+  defaultSuggestions Json     // { suggestion1?: string, suggestion2?: string, suggestion3?: string }
+  vapiSettings       Json     // { assistantId?: string, phoneNumber?: string }
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([organizationId])
+  @@index([organizationId])
+  @@map("widget_settings")
+}
+
+model Plugin {
+  id             String   @id @default(uuid())
+  organizationId String
+  service        String   // "vapi"
+  secretName     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, service])
+  @@index([organizationId])
+  @@index([organizationId, service])
+  @@map("plugins")
+}
+
+model ContactSession {
+  id             String         @id @default(uuid())
+  name           String
+  email          String
+  organizationId String
+  expiresAt      DateTime
+  metadata       Json?          // Browser metadata object
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  conversations  Conversation[]
+
+  @@index([organizationId])
+  @@index([expiresAt])
+  @@map("contact_sessions")
+}
+
+model Conversation {
+  id               String         @id @default(uuid())
+  threadId         String
+  organizationId   String
+  contactSessionId String
+  contactSession   ContactSession @relation(fields: [contactSessionId], references: [id])
+  status           String         // "unresolved" | "escalated" | "resolved"
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@index([contactSessionId])
+  @@index([threadId])
+  @@index([status, organizationId])
+  @@map("conversations")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ─── AI Agent Models (replaces @convex-dev/agent) ───────────────────────────
+
+model Thread {
+  id        String    @id @default(uuid())
+  userId    String    // organizationId used as the "user" in agent context
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  @@index([userId])
+  @@map("threads")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  threadId  String
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  role      String   // "user" | "assistant" | "system"
+  content   String
+  agentName String?  // For operator messages
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+  @@map("messages")
+}
+
+// ─── RAG / Knowledge Base (replaces @convex-dev/rag) ────────────────────────
+
+model RagEntry {
+  id          String   @id @default(uuid())
+  namespace   String   // organizationId
+  key         String   // filename
+  title       String?
+  text        String   // extracted text content
+  contentHash String?  // for deduplication
+  metadata    Json?    // { storageId, uploadedBy, filename, category }
+  status      String   @default("pending") // "pending" | "ready" | "error"
+  s3Key       String?  // S3 object key for the original file
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // NOTE: For vector search, you'll need to add pgvector extension
+  // and an embedding column. Run:
+  //   CREATE EXTENSION IF NOT EXISTS vector;
+  //   ALTER TABLE rag_entries ADD COLUMN embedding vector(1536);
+  //   CREATE INDEX ON rag_entries USING ivfflat (embedding vector_cosine_ops);
+  // Prisma doesn't natively support pgvector, so we use raw SQL for embed operations.
+
+  @@unique([namespace, contentHash])
+  @@index([namespace])
+  @@index([namespace, key])
+  @@map("rag_entries")
+}
