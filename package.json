@@ -22,12 +22,10 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@clerk/shared",
-      "@prisma/client",
       "@sentry/cli",
       "@swc/core",
       "core-js-pure",
       "esbuild",
-      "prisma",
       "sharp"
     ]
   }

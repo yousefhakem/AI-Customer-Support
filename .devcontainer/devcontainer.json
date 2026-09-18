@@ -1,19 +1,15 @@
 {
   "name": "AI Customer Support",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/sshd:1": {}
   },
-  "forwardPorts": [3000, 3001, 3002, 4000, 5432],
+  "forwardPorts": [3000, 3001, 3002],
   "portsAttributes": {
     "3000": { "label": "web — admin dashboard", "onAutoForward": "notify" },
     "3001": { "label": "widget", "onAutoForward": "silent" },
-    "3002": { "label": "embed script", "onAutoForward": "silent" },
-    "4000": { "label": "api — express", "onAutoForward": "silent" },
-    "5432": { "label": "postgres", "onAutoForward": "silent" }
+    "3002": { "label": "embed script", "onAutoForward": "silent" }
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "remoteUser": "node",
@@ -23,8 +19,7 @@
         "anthropic.claude-code",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss",
-        "Prisma.prisma"
+        "bradlc.vscode-tailwindcss"
       ]
     }
   }

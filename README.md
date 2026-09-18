@@ -78,7 +78,6 @@ Admin Dashboard (Next.js 15)
 
 **Backend & Infrastructure**
 - Convex (real-time data + serverless functions)
-- Express 5
 - AWS S3, AWS Secrets Manager
 - Clerk (auth), Stripe (billing), Svix (webhooks)
 

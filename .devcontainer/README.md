@@ -1,8 +1,8 @@
 # Dev container
 
-Everything the project needs runs inside the container — Node 22, pnpm, and
-Postgres 17 with the `pgvector` extension already installed. Nothing has to be
-installed on your machine.
+Everything the project needs runs inside the container — Node 22 and pnpm.
+The backend is Convex, which runs in Convex's cloud, so there is no local
+database. Nothing has to be installed on your machine.
 
 ## Open it
 
@@ -15,27 +15,40 @@ gh codespace create -R yousefhakem/AI-Customer-Support
 gh codespace ssh
 ```
 
-`post-create.sh` then installs dependencies, generates the Prisma client,
-pushes the schema, adds the pgvector column/index, installs Claude Code, and
-writes starter env files.
+`post-create.sh` then installs dependencies, installs Claude Code, and writes
+starter env files.
 
-## Secrets
+## First run
+
+```bash
+cd packages/backend && npx convex dev   # log in and link your Convex project
+```
+
+Server-side secrets are stored in the Convex deployment (dashboard, or
+`npx convex env set NAME value`), not in local files:
+
+| Convex env var | Used by |
+|---|---|
+| `OPENAI_API_KEY` | agent, RAG embeddings, file text extraction |
+| `CLERK_JWT_ISSUER_DOMAIN` | `convex/auth.config.ts` (Clerk "convex" JWT template) |
+| `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET` | Clerk webhook in `convex/http.ts` |
+| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Secrets Manager (Vapi keys) |
+
+## Codespaces secrets
 
 Set these as **Codespaces secrets** (repo Settings → Secrets and variables →
-Codespaces) and they are written into the env files on create:
+Codespaces) and they are written into the app env files on create:
 
-| Secret | Used by |
+| Secret | Written to |
 |---|---|
-| `OPENAI_API_KEY` | agent + RAG embeddings |
-| `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`, `CLERK_JWT_ISSUER_DOMAIN` | API auth |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | admin dashboard |
-| `NEXT_PUBLIC_CONVEX_URL` | web + widget (while they are still on Convex) |
-| `AWS_*` | file storage (optional) |
+| `NEXT_PUBLIC_CONVEX_URL` | `apps/web/.env.local`, `apps/widget/.env.local` |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `apps/web/.env.local` |
+| `CONVEX_DEPLOYMENT` | `packages/backend/.env.local` (optional; `npx convex dev` writes it) |
 | `CLAUDE_CODE_OAUTH_TOKEN` | pre-authenticates Claude Code (`claude setup-token`) |
 
 ## Ports
 
-3000 web · 3001 widget · 3002 embed · 4000 API · 5432 Postgres.
+3000 web · 3001 widget · 3002 embed.
 
 Forwarded ports are private by default. The widget and embed script need public
 URLs to be iframed from another site:
@@ -44,5 +57,5 @@ URLs to be iframed from another site:
 gh codespace ports visibility 3001:public 3002:public
 ```
 
-Add the forwarded 3000 URL to Clerk's allowed origins, and point Clerk/Stripe
-webhooks at the forwarded 4000 URL.
+Add the forwarded 3000 URL to Clerk's allowed origins. Clerk webhooks point at
+your Convex deployment's HTTP URL (`https://<deployment>.convex.site/clerk-webhook`).
