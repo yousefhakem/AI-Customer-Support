@@ -341,7 +341,7 @@ Each slice is a GitHub milestone. Each bullet is an issue and one PR. The last i
 Goal: an empty but fully wired Spring app, with auth, tests and CI, and the risky tech checked.
 
 
-- **Scaffold `apps/api`:** Gradle (Kotlin DSL), Java 25, Spring Boot 4, virtual threads, Actuator, `package.json` wrapper for turbo, `Dockerfile`. Dev container: add a JDK and a `pgvector/pgvector` Postgres service.
+- **Scaffold `apps/api`:** Gradle (Kotlin DSL), Java 25, Spring Boot 4, virtual threads, Actuator, `package.json` wrapper for turbo, `Dockerfile`. Dev container: add the Java 25 and docker-in-docker features, plus a compose file that runs `pgvector/pgvector` Postgres locally (the same Docker daemon serves Testcontainers).
 - **Error format + OpenAPI:** `ProblemDetail` responses via `@RestControllerAdvice`, springdoc with Swagger UI at `/swagger-ui`.
 - **Test harness:** base integration test class (Testcontainers Postgres + pgvector, MockMvc), a helper that mints test Clerk JWTs, Flyway baseline.
 - **Dashboard auth:** OAuth2 resource server with Clerk JWKS, `@CurrentOrg` resolver, CORS, `GET /api/private/me`. Tests: valid token, missing `orgId`, bad signature, expired.
