@@ -37,3 +37,6 @@ npm-debug.log*
 # Misc
 .DS_Store
 *.pem
+
+# Built from apps/embed during the widget build
+apps/widget/public/widget.js

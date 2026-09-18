@@ -110,8 +110,8 @@ plugins             — extensible feature flags per organisation
 # Install dependencies
 pnpm install
 
-# Set environment variables (see .env.example in each app)
-# Required: CONVEX_URL, CLERK_*, STRIPE_*, OPENAI_API_KEY, VAPI_*, AWS_*, SENTRY_DSN
+# First-time setup: follow docs/SETUP.md (steps 1–5)
+# Needs: Convex, OpenAI, Clerk (+ AWS for the Vapi plugin, Sentry optional)
 
 # Run all apps in dev mode
 pnpm dev
@@ -121,3 +121,30 @@ Each app runs on its own port:
 - Admin dashboard: `http://localhost:3000`
 - Widget: `http://localhost:3001`
 - Embed script: `http://localhost:3002`
+
+---
+
+## Deploying to Vercel
+
+Full step-by-step setup for every service (Convex, OpenAI, Clerk, AWS, Sentry, Vercel, self-hosting) is in [docs/SETUP.md](docs/SETUP.md).
+
+The frontends run on Vercel; the backend stays on Convex. Create **two** Vercel projects from this repo:
+
+| Project | Root Directory | Serves |
+|---|---|---|
+| web | `apps/web` | Admin dashboard. Its build also deploys the Convex backend (`apps/web/vercel.json`). |
+| widget | `apps/widget` | Chat widget iframe **and** `/widget.js`, the embed script built from `apps/embed`. |
+
+**Environment variables**
+
+- **web:** `CONVEX_DEPLOY_KEY` (Convex dashboard → Settings → production deploy key), `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_WIDGET_URL` (the widget project's URL). Optional: `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`. Do not set `NEXT_PUBLIC_CONVEX_URL` here; `convex deploy` provides it.
+- **widget:** `NEXT_PUBLIC_CONVEX_URL` (the production `https://<name>.convex.cloud` URL).
+- **Convex production deployment:** `npx convex env set --prod <NAME> <value>` for each secret in `packages/backend/.env.example`.
+
+**Preview deployments:** add a Convex *preview* deploy key as `CONVEX_DEPLOY_KEY` in the web project's Preview environment to get a separate backend per branch. Without it, preview builds of web fail. Widget previews always talk to the production backend.
+
+**After the first deploy**
+
+1. Deploy the web project first so the Convex functions exist before the widget uses them.
+2. Point the Clerk webhook at `https://<name>.convex.site/clerk-webhook` and use a Clerk *production* instance (update `CLERK_JWT_ISSUER_DOMAIN` to match).
+3. Customers embed `<script src="https://<widget-domain>/widget.js" data-organization-id="org_..."></script>`. The dashboard's Integrations page generates this from `NEXT_PUBLIC_WIDGET_URL`.
