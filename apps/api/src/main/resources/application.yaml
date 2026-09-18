@@ -1,6 +1,9 @@
 spring:
   application:
     name: support-api
+  mvc:
+    problemdetails:
+      enabled: true
   threads:
     virtual:
       enabled: true
@@ -13,3 +16,7 @@ management:
     web:
       exposure:
         include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
