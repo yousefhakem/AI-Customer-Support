@@ -14,6 +14,10 @@ pnpm install
 echo "▸ Installing Claude Code"
 npm install -g @anthropic-ai/claude-code
 
+echo "▸ Installing tmux (keeps sessions alive across SSH disconnects)"
+sudo apt-get update -qq
+sudo apt-get install -y -qq tmux
+
 echo "▸ Writing env files"
 if [ ! -f packages/backend/.env.local ] && [ -n "${CONVEX_DEPLOYMENT:-}" ]; then
   cat > packages/backend/.env.local <<ENV
