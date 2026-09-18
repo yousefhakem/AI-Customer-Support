@@ -29,30 +29,38 @@ public final class TestJwts {
 	}
 
 	public static String valid(String orgId) {
-		return sign(KEY, orgId, Instant.now());
+		return sign(KEY, ISSUER, AUDIENCE, orgId, Instant.now());
 	}
 
 	public static String expired(String orgId) {
-		return sign(KEY, orgId, Instant.now().minusSeconds(3600));
+		return sign(KEY, ISSUER, AUDIENCE, orgId, Instant.now().minusSeconds(3600));
 	}
 
 	public static String signedWithWrongKey(String orgId) {
-		return sign(OTHER_KEY, orgId, Instant.now());
+		return sign(OTHER_KEY, ISSUER, AUDIENCE, orgId, Instant.now());
 	}
 
 	public static String withoutOrgId() {
-		return sign(KEY, null, Instant.now());
+		return sign(KEY, ISSUER, AUDIENCE, null, Instant.now());
+	}
+
+	public static String withIssuer(String issuer, String orgId) {
+		return sign(KEY, issuer, AUDIENCE, orgId, Instant.now());
+	}
+
+	public static String withAudience(String audience, String orgId) {
+		return sign(KEY, ISSUER, audience, orgId, Instant.now());
 	}
 
 	public static RSAKey publicJwk() {
 		return KEY.toPublicJWK();
 	}
 
-	private static String sign(RSAKey key, String orgId, Instant issuedAt) {
+	private static String sign(RSAKey key, String issuer, String audience, String orgId, Instant issuedAt) {
 		JWTClaimsSet.Builder claims = new JWTClaimsSet.Builder()
-			.issuer(ISSUER)
+			.issuer(issuer)
 			.subject("user_test")
-			.audience(AUDIENCE)
+			.audience(audience)
 			.claim("azp", "http://localhost:3000")
 			.issueTime(Date.from(issuedAt))
 			.notBeforeTime(Date.from(issuedAt))
