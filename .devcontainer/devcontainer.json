@@ -3,13 +3,20 @@
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/sshd:1": {}
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "jdkDistro": "tem",
+      "installGradle": false
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "forwardPorts": [3000, 3001, 3002],
+  "forwardPorts": [3000, 3001, 3002, 8080],
   "portsAttributes": {
     "3000": { "label": "web — admin dashboard", "onAutoForward": "notify" },
     "3001": { "label": "widget", "onAutoForward": "silent" },
-    "3002": { "label": "embed script", "onAutoForward": "silent" }
+    "3002": { "label": "embed script", "onAutoForward": "silent" },
+    "8080": { "label": "api", "onAutoForward": "silent" }
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "remoteUser": "node",

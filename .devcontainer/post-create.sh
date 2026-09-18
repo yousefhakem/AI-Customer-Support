@@ -47,5 +47,6 @@ cat <<'DONE'
                      npx convex env set CLERK_WEBHOOK_SECRET ...
                      npx convex env set AWS_REGION / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY ...
   3. Everything      pnpm dev   → :3000 web  :3001 widget  :3002 embed
+  API                cd apps/api && docker compose up -d && ./gradlew bootRun → :8080
   Claude Code        claude
 DONE
