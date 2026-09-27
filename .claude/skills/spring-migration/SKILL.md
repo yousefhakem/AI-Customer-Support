@@ -74,28 +74,14 @@ Smoke steps need a signed-in browser: ask the user to run them. Commit or open a
 
 ## Conventions to hand to workers (pick the relevant lines)
 
-- **Package:** `io.github.yousefhakem.support.<feature>`, containing `XController`, `XService`, `XRepository`, entity `X`, and `dto/` records. Constructor injection, no Lombok.
-- **Controllers are thin:**
-  - Map to DTO records and call one service method. Never return entities.
-  - Private endpoints take `@CurrentOrg String orgId`; public ones take `@CurrentContactSession ContactSession session`.
-- **Services** own the business rules and `@Transactional`. Repositories use tenant-scoped finders (`findByIdAndOrganizationId`).
-- **Errors:** throw `NotFoundException` / `BadRequestException` / `UnauthorizedException`. They become `ProblemDetail` with a `code` matching Convex's.
-- **Data:**
-  - Flyway files are named `V<n>__<what>.sql`.
-  - UUID ids; `Instant` in Java, `timestamptz` in SQL.
-  - Keyset pagination: `?cursor=&limit=` → `{ items, nextCursor }`.
-- **Tests:**
-  - `*IT` classes run against Testcontainers Postgres (pgvector).
-  - `TestJwts` mints tokens.
-  - Fake `ChatModel` / `EmbeddingModel` beans stand in for OpenAI; MockRestServiceServer or WireMock for HTTP APIs.
-  - Test names describe the behaviour.
+- **API:** the *Conventions* in `apps/api/AGENTS.md` (package layout, controllers, services, errors, data, tests). Copy the relevant lines into the brief.
 - **Frontend:**
   - Calls go only through `@workspace/api-client`.
   - Swap the data calls and leave markup, styling and copy alone.
   - Leave calls that belong to later slices on Convex.
-- **Commits** (only if asked): `feat(api): …`, `feat(widget): …`, etc. Branch name: `slice-<n>/<slug>`.
+- **Commits** (only if asked): see `docs/agents/delivery.md`.
 
-(The concrete helpers named above are created in slice 0. Until they exist, tell the worker what to create instead.)
+(Some helpers named in `apps/api/AGENTS.md` don't exist yet. Until they do, tell the worker what to create instead.)
 
 ## Brief template
 
